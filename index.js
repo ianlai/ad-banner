@@ -3,26 +3,25 @@ var qs = require('querystring');
 //var moment = require('moment');
 //var url = require('url');
 var URL = require('url');
+var fs = require('fs');
 
-var adList = [
-    {img: "img1", url: "url1", ip: "", timeStart: 1523963781963, timeDuration: 1000000},
-    {img: "img2", url: "url2", ip: "", timeStart: 1523963781963, timeDuration: 3000000},  //show
-    {img: "img3", url: "url3", ip: "", timeStart: 1623963781963, timeDuration: 1000},
-    {img: "img4", url: "url4", ip: "", timeStart: 1523965447538, timeDuration: 10000000}  //show
-]
+var htmlFile;
+var jsFile;
 
-function pad(n) {
-    return n<10 ? '0'+n : n
-}
+fs.readFile('./app.js', function(err, data) {
+    if (err){
+        throw err;
+    }
+    jsFile = data;
+});
 
-function getTimezone() {
-  var tzo = new Date().getTimezoneOffset();  //returns timezone offset in minutes
-  function pad(num, digits) {
-    num = String(num); while (num.length < digits) { num="0"+num; }; return num;
-  }
-  return "GMT" + (tzo > 0 ? "-" : "+") + pad(Math.floor(tzo/60), 2) + ":" + pad(tzo%60, 2);
-}
-var server = http.createServer(function (req, res) {
+fs.readFile('./index.html', function(err, data) {
+    if (err){
+        throw err;
+    }
+    htmlFile = data;
+    
+    var server = http.createServer(function (req, res) {
     
     var date = new Date();
     //var reqTime = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
@@ -57,20 +56,36 @@ var server = http.createServer(function (req, res) {
     //const { URL } = require('url');
     
     const myURL = URL.parse(req.url, true);
-    console.log('myURL: ', myURL);
+    //console.log('myURL: ', myURL);
     console.log('param: ', myURL.query.tz);
     
     console.log('adrequest: ', adrequest);
-    if(adrequest.url==='/' && adrequest.method==='GET'){
-        //res.send(obj);
-        //res.sendFile('index.html');
-        var feasibleAdList = JSON.stringify(getAd(adrequest));
-        console.log(feasibleAdList);
+    if(myURL.pathname==='/' && adrequest.method==='GET'){
+        /* Timezone not sent yet */
+        if(myURL.query.tz===undefined){
+            /* Send response */
+            //res.end("Please send the timezone info back");
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.write(htmlFile);
+            res.end();
+        }else{
+            //res.send(obj);
+            //res.sendFile('index.html');
+            var feasibleAdList = JSON.stringify(getAd(adrequest));
+            console.log("Feasible Ad List:" + feasibleAdList);
+            
+            /* Send response */
+            res.writeHead(200, {'Content-Type': 'text/plain'});
+            res.end(feasibleAdList);
+        }
         
-        /* Send response */
-        res.writeHead(200, {'Content-Type': 'text/plain'});
-        res.end(feasibleAdList);
-    }else if (req.method === 'GET' && req.url === '/echo') {
+    }else if(myURL.pathname==='/app.js' && adrequest.method==='GET'){
+        console.log('app.js');
+        res.writeHead(200, {'Content-Type': 'application/javascript'});
+        res.write(jsFile);
+        res.end();
+    }
+    else if (req.method === 'GET' && req.url === '/echo') {
         console.log('GET /echo');
         //res.sendFile('index.html');
     }else if (req.method === 'GET' && req.url.s === '/') {
@@ -85,6 +100,29 @@ var server = http.createServer(function (req, res) {
     }
     
 }).listen(process.env.PORT);
+});
+
+
+
+var adList = [
+    {img: "img1", url: "url1", ip: "", timeStart: 1523963781963, timeDuration: 1000000},
+    {img: "img2", url: "url2", ip: "", timeStart: 1523963781963, timeDuration: 30000000},  //show
+    {img: "img3", url: "url3", ip: "", timeStart: 1623963781963, timeDuration: 1000},
+    {img: "img4", url: "url4", ip: "", timeStart: 1523965447538, timeDuration: 100000000}  //show
+]
+
+function pad(n) {
+    return n<10 ? '0'+n : n
+}
+
+function getTimezone() {
+  var tzo = new Date().getTimezoneOffset();  //returns timezone offset in minutes
+  function pad(num, digits) {
+    num = String(num); while (num.length < digits) { num="0"+num; }; return num;
+  }
+  return "GMT" + (tzo > 0 ? "-" : "+") + pad(Math.floor(tzo/60), 2) + ":" + pad(tzo%60, 2);
+}
+
 
 function getAd(adr){
     console.log('getAd()');
