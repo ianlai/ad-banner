@@ -30,8 +30,6 @@ fs.readFile('./index.html', function(err, data) {
 
 var server = http.createServer(function (req, res) {
     
-    //var reqTime = date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-    
     /* Get current time */
     var date = new Date();
     
@@ -127,7 +125,9 @@ function pad(n) {
 function getAd(adr){
     console.log('getAd()');
     
-    /* request one specific ad */
+    /* Useage1 - Get a specific ad
+       Ad's id is assigned by client.
+       IP needs to be checked. */
     if(adr.id!==undefined){
         //adList.forEach(function(ad){
         //    console.log('id:       ' + ad.id);
@@ -146,27 +146,27 @@ function getAd(adr){
                 return null;
             }
         }
+    }else{
+        /* Useage2 - Get a feasible ad list
+           Check the time and timezone info. */
+        var currentTime = adr.time;
+        var clientTime = adr.time + adr.timezone*60*1000;  
+        console.log('server:    ' + currentTime);
+        console.log('client:    ' + clientTime);
+        console.log('server-readable:    ' + getReaderableTime(currentTime));
+        console.log('client-readable:    ' + getReaderableTime(clientTime));
+        adList.forEach(function(ad){
+            console.log('id:       ' + ad.id);
+            console.log('start:    ' + getReaderableTime(ad.timeStart));
+            //console.log('duration: ' + getReaderableTime(ad.timeDuration));
+            console.log('end:      ' + getReaderableTime(ad.timeStart+ad.timeDuration));
+        })
+        
+        /* Filter ad list with the time */
+        var feasibleAdList = adList.filter(ad => clientTime> ad.timeStart && clientTime< ad.timeStart+ad.timeDuration);
+        
+        return feasibleAdList;
     }
-    
-    /* get a feasible ad list */
-    var currentTime = adr.time;
-    var clientTime = adr.time + adr.timezone*60*1000;  
-    console.log('server:    ' + currentTime);
-    console.log('client:    ' + clientTime);
-    console.log('server-readable:    ' + getReaderableTime(currentTime));
-    console.log('client-readable:    ' + getReaderableTime(clientTime));
-    adList.forEach(function(ad){
-        console.log('id:       ' + ad.id);
-        console.log('start:    ' + getReaderableTime(ad.timeStart));
-        //console.log('duration: ' + getReaderableTime(ad.timeDuration));
-        console.log('end:      ' + getReaderableTime(ad.timeStart+ad.timeDuration));
-    })
-    /* Special IP or not */
-    
-    /* Filter ad list with the time */
-    var feasibleAdList = adList.filter(ad => clientTime> ad.timeStart && clientTime< ad.timeStart+ad.timeDuration);
-    
-    return feasibleAdList;
 }
 
 function getReaderableTime(time){
