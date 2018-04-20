@@ -9,13 +9,16 @@ $(document).ready(function(){
         tz: timezone   
     })
     .then(function(res){
-        console.log(res[0].img);
+        //console.log(res[0].img);
         /* show the ad */
-        res.forEach(function(e){
-            $('#banner').append(e.img);
-            $('#banner').append('  --  ');
-            $('#banner').append(e.url);
-            $('#banner').append('\n');
-        })
+        $('#img').text(res.img);
+        $('#url').text(res.url);
+        
+        // res.forEach(function(e){
+        //     $('#banner').append(e.img);
+        //     $('#banner').append('  --  ');
+        //     $('#banner').append(e.url);
+        //     $('#banner').append('\n');
+        // })
     });
 });

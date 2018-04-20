@@ -1,5 +1,6 @@
 var mongoose   = require("mongoose");
 mongoose.connect("mongodb://localhost/ad-database");
+console.log("DB is connected.");
 var adSchema = new mongoose.Schema({
     img: String, 
     url: String,
@@ -71,13 +72,27 @@ function seedDatabase(){
       img: "/sample5.png",
       url: "www.ad.com/5",
       ip: "105.0.0.1",
-      timeStart: 1523965447538, 
-      timeDuration: 1000000000
+      timeStart: 1523265447538, 
+      timeDuration: 8900000000
     }, function(err, saved){
       if(err){
           console.log("DB error");
       }else{
           console.log("DB is seeded - 5.");
+      }
+    });
+    
+    Ad.create({
+      img: "/sample6.png",
+      url: "www.ad.com/6",
+      ip: "106.0.0.1",
+      timeStart: 1523962447538, 
+      timeDuration: 6700000000
+    }, function(err, saved){
+      if(err){
+          console.log("DB error");
+      }else{
+          console.log("DB is seeded - 6.");
       }
     });
 }
@@ -96,4 +111,4 @@ module.exports = {
     Ad: Ad, 
     seedDatabase: seedDatabase, 
     clearDatabase: clearDatabase
-}
+};

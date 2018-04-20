@@ -1,21 +1,58 @@
 <!DOCTYPE html>
 <html>
     <head>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .container{
+            font-size: 16px;
+            padding: 20px;
+            margin: 20px;
+            border: #0000FF 1px solid; ;
+        }
+        .emph{
+            color: #999;
+        }
+    </style>
     <script
       src="https://code.jquery.com/jquery-3.3.1.min.js"
       integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
       crossorigin="anonymous"></script>
     </head>
     <body>
-        <h1>
-            This is index.html!
-        </h1>
-        <div id="banner">
-            Banner: 
+        <div id="main" class="container">
+            <h2>Main Page</h2>
+            <div>
+                This is a web page with an ad banner. <br>
+                <br>
+                According to the promotional time set by the ad publisher and the timezone you are in, <br>
+                an ad will be choosed, loaded and shown in below. 
+            </div>
         </div>
-        <!--<iframe height="200" width="300">-->
-            
-        <!--</iframe>-->
+        
+        <div id="banner" class="container">
+            <h2>Ad Banner</h2>
+            <div>
+                <span> Image: </span>
+                <span id="img" class="emph">  empty </span>
+            </div>
+            <br>
+            <div>
+                <span> URL: </span>
+                <span id="url" class="emph"> empty </span>
+            </div>
+        </div>
+        
+        <div id="poster" class="container">
+            <h2>Ad Poster</h2>
+            <div>
+                Ad publisher can use this block to upload the ad. <br>
+                Or they can just use the api provided to upload the ad. <br>
+                <br>
+                (not implemented yet) 
+            </div>
+        </div>
         <script type="text/javascript" src="index.js"></script>
     </body>
 </html>

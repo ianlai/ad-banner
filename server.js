@@ -161,7 +161,6 @@ var server = http.createServer(function (req, res) {
     
 }).listen(process.env.PORT);
 
-
 var parsePostBody = function (req, done) {
     var length = req.headers['content-length'] - 0;
     var arr = [];
@@ -233,13 +232,19 @@ function getAd(adr, callback){
                     console.log('>> id:       ' + ad.id);
                     var start = getReaderableTime(ad.timeStart);
                     var end = getReaderableTime(ad.timeStart+ad.timeDuration);
-                    
+                    console.log('>> img:    ' + ad.img); 
                     console.log('>> period:    ' + start + "--" + end);
+                   
                     //console.log('start:    ' + getReaderableTime(ad.timeStart));
                     //console.log('duration: ' + getReaderableTime(ad.timeDuration));
                     //console.log('end:      ' + getReaderableTime(ad.timeStart+ad.timeDuration));
                 })
-                callback(ads);
+                /* return a fesible ad randomly choosed from the fesible array */
+                var rand = ads[Math.floor(Math.random() * ads.length)];
+                callback(rand);
+                
+                /* return a fesible ad array */
+                //callback(ads);
            }
         });
     }
