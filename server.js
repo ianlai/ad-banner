@@ -10,21 +10,12 @@ var seedDatabase  = dbutil.seedDatabase;
 var clearDatabase = dbutil.clearDatabase;
 //=============================================
 
-/* For debugging */
+/* Initialization the database (for debugging) */
 clearDatabase();
 seedDatabase();
 
-//=============================================
 var htmlFile;
 var jsFile;
-
-var adList = [
-    {id: 1, img: "img1", url: "url1", ip: "101.0.0.1", timeStart: 1523963781963, timeDuration: 1000000},
-    {id: 2, img: "img2", url: "url2", ip: "102.0.0.1", timeStart: 1523963781963, timeDuration: 30000000},  //show
-    {id: 3, img: "img3", url: "url3", ip: "103.0.0.1", timeStart: 1623963781963, timeDuration: 1000},
-    {id: 4, img: "img4", url: "url4", ip: "104.0.0.1", timeStart: 1523965447538, timeDuration: 1000000000},  //show
-    {id: 5, img: "img5", url: "url5", ip: "10.240.1.191", timeStart: 1523980600000, timeDuration: 800000000}  //show
-]
 
 fs.readFile('./index.js', function(err, data) {
     if (err){
@@ -41,8 +32,6 @@ fs.readFile('./index.html', function(err, data) {
 });
 
 var server = http.createServer(function (req, res) {
-    
-    //console.log(adList);
     
     /* Get current time */
     var date = new Date();
@@ -79,6 +68,7 @@ var server = http.createServer(function (req, res) {
     console.log("----------------------");
     console.log('adrequest: ', adrequest);
     
+    /* Send index.html (if no timezone) or send the feasible ad list (if there is timezone) */
     if(myURL.pathname==='/' && adrequest.method==='GET'){
         /* Timezone not received yet */
         if(myURL.query.tz===undefined){
@@ -94,19 +84,11 @@ var server = http.createServer(function (req, res) {
                 
                 /* Send response */
                 res.writeHead(200, {'Content-Type': 'text/json'});
-                res.end(JSON.stringify(returnedAds));  //should not send the full list ; should not send other info 
+                res.end(JSON.stringify(returnedAds));
             });
         }
     }
-    else if(myURL.pathname==='/all' && adrequest.method==='GET'){    //all
-        getAd(0, function(returnedAds){
-            console.log("All Ad List -> " + returnedAds);
-            
-            /* Send response */
-            res.writeHead(200, {'Content-Type': 'text/json'});
-            res.end(JSON.stringify(returnedAds));  //should not send the full list ; should not send other info 
-        });
-    }
+    /* Send index.js to let client send the timezone to request the ad */
     else if(myURL.pathname==='/index.js' && adrequest.method==='GET'){
         console.log('GET /index.js');
         res.writeHead(200, {'Content-Type': 'application/javascript'});
@@ -114,7 +96,18 @@ var server = http.createServer(function (req, res) {
         res.end();
         
     }
-    else if(adrequest.id!==undefined && adrequest.method==='GET'){ /* show determined ad */
+    /* Request all the ads in the database */
+    else if(myURL.pathname==='/all' && adrequest.method==='GET'){
+        getAd(0, function(returnedAds){
+            console.log("All Ad List -> " + returnedAds);
+            
+            /* Send response */
+            res.writeHead(200, {'Content-Type': 'text/json'});
+            res.end(JSON.stringify(returnedAds));
+        });
+    }
+    /* Request a specific ad with its id */
+    else if(adrequest.id!==undefined && adrequest.method==='GET'){ 
         console.log('GET /:id');
         
         getAd(adrequest, function(ad){
@@ -122,25 +115,17 @@ var server = http.createServer(function (req, res) {
             if(ad!==undefined){
                 /* Send response */
                 res.writeHead(200, {'Content-Type': 'text/json'});
-                res.end(JSON.stringify(ad));  //should not send the full list ; should not send other info 
+                res.end(JSON.stringify(ad));
             }
         });
-        
-        // var feasibleAdList = getAd(adrequest); 
-        // if(feasibleAdList==null){
-        //     console.log('no request id: ' + adrequest.id);
-        //     res.writeHead(200, {'Content-Type': 'text/plain'});
-        //     res.end("Bad request.");
-        // }else{
-        //     var feasibleAdList = JSON.stringify(getAd(adrequest));
-        //     res.writeHead(200, {'Content-Type': 'text/plain'});
-        //     res.end(feasibleAdList);
-        // }
     }
-    else if(adrequest.url==='/favicon.ico' && adrequest.method==='GET'){  /* Omit the request of favicon */
+    /* Omit the request of favicon */
+    else if(adrequest.url==='/favicon.ico' && adrequest.method==='GET'){  
         res.writeHead(204);
         return;
-    }else if(myURL.pathname==='/' && adrequest.method==='POST'){
+    }
+    /* Add an ad */
+    else if(myURL.pathname==='/' && adrequest.method==='POST'){
         parsePostBody(req, (chunks) => {
             var parsed = JSON.parse(chunks.toString());  
             var newAd = {
@@ -151,9 +136,6 @@ var server = http.createServer(function (req, res) {
                 timeStart:    parsed.timeStart,
                 timeDuration: parsed.timeDuration
             }
-            /* Add to array (memory) */ 
-            //console.log("New Ad: " + newAd);
-            //adList.push(newAd);
            
             /* Add to database */
             Ad.create({
@@ -193,14 +175,10 @@ var parsePostBody = function (req, done) {
     });
 };
 
-function pad(n) {
-    return n<10 ? '0'+n : n
-}
-
 function getAd(adr, callback){
     console.log('getAd()');
     
-    /* Get all the list */
+    /* (1) Get all the list. */
     if(adr==0){
         console.log("Request all ads");
         Ad.find({}, function(err, ads){
@@ -211,8 +189,8 @@ function getAd(adr, callback){
            }
         });
     }
-    /* Get a specific ad (assigned by id)
-       IP needs to be checked. */
+    /* (2) Get a specific ad assigned by id.
+           Time is not considered but IP needs to be validated. */
     else if(adr.id!==undefined){
         console.log("Request single ad");
         Ad.findById(adr.id, function(err, ad){
@@ -231,8 +209,8 @@ function getAd(adr, callback){
                 }
         });
     }
-    /* Get a feasible ad list
-       Check the time and timezone info. */
+    /* (3) Get a feasible ad list
+           Check the time and timezone info. */
     else{
         console.log("Request ads match the promotion time");
         var currentTime = adr.time;
@@ -264,17 +242,6 @@ function getAd(adr, callback){
                 callback(ads);
            }
         });
-        
-        /* Read from array (memory) */
-        // adList.forEach(function(ad){
-        //     console.log('>> id:       ' + ad.id);
-        //     console.log('start:    ' + getReaderableTime(ad.timeStart));
-        //     //console.log('duration: ' + getReaderableTime(ad.timeDuration));
-        //     console.log('end:      ' + getReaderableTime(ad.timeStart+ad.timeDuration));
-        // })
-        /* Filter ad list with the time */
-        //var feasibleAdList = adList.filter(ad => clientTime> ad.timeStart && clientTime< ad.timeStart+ad.timeDuration);
-        //return feasibleAdList;
     }
 }
 
@@ -293,4 +260,8 @@ function getReaderableTime(time){
             + pad(min) + ":" 
             + pad(sec);
     return output;
+}
+
+function pad(n) {
+    return n<10 ? '0'+n : n
 }
