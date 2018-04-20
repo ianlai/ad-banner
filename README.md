@@ -1,6 +1,25 @@
-# Ad Banner 
+# Ad Banner
 
-## Format: 
+## 1. Project Intro: 
+This is an ad banner service which offers the following features.
+This service is implemented in Node.js without web framework, e.g. Express.
+
+- Ad platform : 
+	1. Provides the API server. 
+	2. Provides the main page with an ad banner. 
+	3. Test code  
+- Ad publisher: 
+	1. Add a new ad 
+  	2. Assign the promotional time to show the ad 
+  	3. Check the ad out of the promotional time as long as using the valid IP
+- Client      : 
+	1. Access the main page and randomly see an ad which is in its promotional time.
+
+**Temporary test url:** 
+- https://webdevbootcamp-ianlai.c9users.io/
+ 
+
+## 2. Data Format: 
 
 ##### Ad format: 
     Ad = { 
@@ -29,7 +48,7 @@
         ip      : ipFormatted,  # remove ipv6
     }
 
-## API: 
+## 3. API: 
 - **GET /** 
   - For normal user to request ad. Since the client didn't send the timezone info, server will send back a html with JS to request again with timezone info in the param. 
 
@@ -45,24 +64,26 @@
 - **POST /**
   - For ad provider to upload an ad. The format needs to match the ad format. 
 
-## Release Notes (Todo): 
+## 4. Release Notes (Todo): 
 
 **2018.04.17** 
-- Server side get time, timezone, IP from client (two phases)
+- Server side get request time and IP from client (1st request)
+- Server side get time zone from params (2nd request)
 
 **2018.04.18**
-- Server side choose ads to send back (time calculation)
-- Client side render the ad (append in div)
-- Server side send back the specific ad if client is the ad manager (request with ID and correct IP)
+- Server side filter ads to send back according to the promotional time
+- Client side render the ad (append the text in div)
+- Server side send back a specific ad for ad publisher (request with ID and correct IP)
+- Server side can send all ads back
 
 **2018.04.20**
-- Add new add (POST request)
-- Store the ads into DB 
-- Add clear and seed functions for initialize the DB.
+- Add a POST route to a new add
+- Store the ads into Mongo DB instead of a temporary array
+- Add clear and seed functions for initializing the DB
+- Randomly choose one valid ad to return instead of sending all fesible ads back 
 
 **Todo**
 - Client-side interface to easy add an ad 
 - Refine the ad to send back (without ip, timeStart, timeDuration info) 
-- Send back one ad only instead of a list  
 - Test code 
 
