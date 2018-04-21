@@ -2,7 +2,6 @@
 //var bodyParser = require("body-parser");
 
 var http = require('http');
-var qs   = require('querystring');
 var URL  = require('url');
 var fs   = require('fs');
 
@@ -23,21 +22,29 @@ seedDatabase();
 
 //=============================================
 
-var htmlFile;
-var jsFile;
+var mainHtml;
+var mainJs;
+var adminHtml;
 
-fs.readFile('./index.js', function(err, data) {
+fs.readFile('./public/index.js', function(err, data) {
     if (err){
         throw err;
     }
-    jsFile = data;
+    mainJs = data;
 });
 
-fs.readFile('./index.html', function(err, data) {
+fs.readFile('./public/index.html', function(err, data) {
     if (err){
         throw err;
     }
-    htmlFile = data;
+    mainHtml = data;
+});
+
+fs.readFile('./public/admin.html', function(err, data) {
+    if (err){
+        throw err;
+    }
+    adminHtml = data;
 });
 //=============================================
 
@@ -83,7 +90,7 @@ var server = http.createServer(function (req, res) {
         /* Timezone not received yet */
         if(myURL.query.tz===undefined){
             res.writeHead(200, {'Content-Type': 'text/html'});
-            res.write(htmlFile);
+            res.write(mainHtml);
             res.end();
         }
         /* Timezone received; filtered the ads and send the ads */
@@ -102,16 +109,20 @@ var server = http.createServer(function (req, res) {
     else if(myURL.pathname==='/index.js' && adrequest.method==='GET'){
         console.log('GET /index.js');
         res.writeHead(200, {'Content-Type': 'application/javascript'});
-        res.write(jsFile);
+        res.write(mainJs);
         res.end();
-        
+    }
+    /* Send admin.html */
+    else if(myURL.pathname==='/admin' && adrequest.method==='GET'){
+        console.log('GET /admin');
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.write(adminHtml);
+        res.end();
     }
     /* Request all the ads in the database */
     else if(myURL.pathname==='/all' && adrequest.method==='GET'){
         getAd(0, function(returnedAds){
             console.log("All Ad List -> " + returnedAds);
-            
-            /* Send response */
             res.writeHead(200, {'Content-Type': 'text/json'});
             res.end(JSON.stringify(returnedAds));
         });
