@@ -4,7 +4,7 @@ $(document).ready(function(){
     var timezone = new Date().getTimezoneOffset();
     console.log("[index.js]" + timezone);
     /* get the ad */
-    $.getJSON('/',
+    $.getJSON('/api/v1/ads',
     {
         tz: timezone   
     })

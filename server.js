@@ -6,7 +6,7 @@ var URL  = require('url');
 var fs   = require('fs');
 
 var dbHandler     = require("./dbHandler");
-//var Ad            = dbHandler.Ad;
+var Ad            = dbHandler.Ad;
 var seedDatabase  = dbHandler.seedDatabase;
 var clearDatabase = dbHandler.clearDatabase;
 
@@ -50,9 +50,8 @@ fs.readFile('./public/admin.html', function(err, data) {
 
 var server = http.createServer(function (req, res) {
     
-    /* Get current time */
-    var date = new Date();
-    
+    /* Handle request: time */
+    var date = new Date();  /* Get current time */
     var reqTime = date.getTime();
     var reqYMD  = date.getFullYear()+pad(date.getMonth()+1)+pad(date.getDate());
     var reqTimezone = date.getTimezoneOffset();
@@ -61,16 +60,29 @@ var server = http.createServer(function (req, res) {
     //console.log('YMD : ' + reqYMD);
     //console.log('TZ  : ' + reqTimezone);
     
+    /* Handle request : IP */
     var ipFormatted = req.connection.remoteAddress.replace(/^.*:/, ''); //remove all colons
     
+    /* Handle request : URL */
     const myURL = URL.parse(req.url, true);
-    var idFormatted = myURL.path.replace(/^\/+/g, '');  //remove leading slash 
+    if(myURL.path=='/'){
+        /* Main page: do nothing */
+    }else{
+        myURL.path = myURL.path.replace(/\/$/g, '');  //remove tailing slash 
+        myURL.pathname = myURL.pathname.replace(/\/$/g, '');  //remove tailing slash 
+    }
+    var idFormatted; //= myURL.path.replace(/^\/+/g, '');  //remove leading slash 
+    console.log('URL: ', myURL);
+    const apiUrl = '/api/v1/ads'; 
+    if(myURL.path.startsWith(apiUrl)){
+        var idIndex = myURL.path.startsWith(apiUrl);
+        idFormatted = myURL.path.substring(apiUrl.length+1);
+    }
+    console.log('URL-id: ', idFormatted);
+    console.log('URL-tz: ', myURL.query.tz);
+    
     var isMongoId = new RegExp("^[0-9a-fA-F]{24}$");
     idFormatted = isMongoId.test(idFormatted) ? idFormatted : undefined;
-    
-    //console.log('myURL: ', myURL);
-    //console.log('param: ', myURL.query.tz);
-    //console.log('req id: ', idFormatted);
     
     const adrequest = {
         id      : idFormatted,
@@ -81,52 +93,60 @@ var server = http.createServer(function (req, res) {
         time    : reqTime,
         timezone: undefined
     }
-    adrequest.ip = "1.1.1.1";
+    adrequest.ip = "3.3.3.3";
     console.log("----------------------");
     console.log('adrequest: ', adrequest);
     
     /* Send index.html (if no timezone) or send the feasible ad list (if there is timezone) */
-    if(myURL.pathname==='/' && adrequest.method==='GET'){
-        /* Timezone not received yet */
-        if(myURL.query.tz===undefined){
-            res.writeHead(200, {'Content-Type': 'text/html'});
-            res.write(mainHtml);
-            res.end();
-        }
-        /* Timezone received; filtered the ads and send the ads */
-        else{
-            adrequest.timezone = myURL.query.tz;
-            console.log('adrequest with tz: ', adrequest);
-            getAd(adrequest, function(returnedAds){
-                console.log("Feasible Ad List -> " + returnedAds);
-                
-                /* Send response */
-                res.writeHead(200, {'Content-Type': 'text/json'});
-                res.end(JSON.stringify(returnedAds[0]));
-            });
-        }
+    if(myURL.path==='/' && adrequest.method==='GET'){
+        console.log('GET /index.html');
+        res.writeHead(200, {'Content-Type': 'text/html'});
+        res.write(mainHtml);
+        res.end();
     }
     /* Send index.js to let client send the timezone to request the ad */
-    else if(myURL.pathname==='/index.js' && adrequest.method==='GET'){
+    else if(myURL.path==='/index.js' && adrequest.method==='GET'){
         console.log('GET /index.js');
         res.writeHead(200, {'Content-Type': 'application/javascript'});
         res.write(mainJs);
         res.end();
     }
     /* Send admin.html */
-    else if(myURL.pathname==='/admin' && adrequest.method==='GET'){
-        console.log('GET /admin');
+    else if(myURL.path==='/admin' && adrequest.method==='GET'){
+        console.log('GET /admin.html');
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.write(adminHtml);
         res.end();
     }
+    /* Omit the request of favicon */
+    else if(adrequest.url==='/favicon.ico' && adrequest.method==='GET'){  
+        res.writeHead(204);
+        return;
+    }
+    
+    //--------------------------------------------------------------------------
     /* Request all the ads in the database */
-    else if(myURL.pathname==='/all' && adrequest.method==='GET'){
+    else if(myURL.pathname==='/api/v1/ads' && adrequest.method==='GET' && myURL.query.tz===undefined){
         getAd(0, function(returnedAds){
             console.log("All Ad List -> " + returnedAds);
             res.writeHead(200, {'Content-Type': 'text/json'});
             res.end(JSON.stringify(returnedAds));
         });
+    }
+    /* Request one ad randomly in the database which matches the timezone */
+    else if(myURL.pathname==='/api/v1/ads' && adrequest.method==='GET' && myURL.query.tz){
+                    
+        /* Timezone received; filtered the ads and send the ads */
+        adrequest.timezone = myURL.query.tz;
+        console.log('adrequest with tz: ', adrequest);
+        getAd(adrequest, function(returnedAds){
+            console.log("Feasible Ad List -> " + returnedAds);
+            
+            /* Send response */
+            res.writeHead(200, {'Content-Type': 'text/json'});
+            res.end(JSON.stringify(returnedAds[0]));
+        });
+        
     }
     /* Request a specific ad with its id */
     else if(adrequest.id!==undefined && adrequest.method==='GET'){ 
@@ -141,17 +161,11 @@ var server = http.createServer(function (req, res) {
             }
         });
     }
-    /* Omit the request of favicon */
-    else if(adrequest.url==='/favicon.ico' && adrequest.method==='GET'){  
-        res.writeHead(204);
-        return;
-    }
     /* Add an ad */
-    else if(myURL.pathname==='/' && adrequest.method==='POST'){
+    else if(myURL.path==='/api/v1/ads' && adrequest.method==='POST'){
         parsePostBody(req, (chunks) => {
             var parsed = JSON.parse(chunks.toString());  
             var newAd = {
-                id : parsed.id,
                 img: parsed.img,
                 url: parsed.url,
                 ip:  parsed.ip,

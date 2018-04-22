@@ -32,7 +32,7 @@ var obj2 = {
 var obj3 = {
       img: "/sample3.png",
       url: "www.ad.com/3",
-      ip: "103.0.0.1",
+      ip: "3.3.3.3",
       timeStart: 1423980600000,
       timeDuration: 180000000000,
       identifier: "ad3"  //for debug
@@ -40,7 +40,7 @@ var obj3 = {
 var obj4 = {
       img: "/sample4.png",
       url: "www.ad.com/4",
-      ip: "104.0.0.1",
+      ip: "4.4.4.4",
       timeStart: 1500965447538, 
       timeDuration: 10000000,
       identifier: "ad4"  //for debug
@@ -48,7 +48,7 @@ var obj4 = {
 var obj5 = {
       img: "/sample5.png",
       url: "www.ad.com/5",
-      ip: "105.0.0.1",
+      ip: "5.5.5.5",
       timeStart: 1523265447538, 
       timeDuration: 8900000000,
       identifier: "ad5"  //for debug
@@ -56,7 +56,7 @@ var obj5 = {
 var obj6 = {
       img: "/sample6.png",
       url: "www.ad.com/6",
-      ip: "106.0.0.1",
+      ip: "6.6.6.6",
       timeStart: 1523962447538, 
       timeDuration: 6700000000,
       identifier: "ad6"  //for debug

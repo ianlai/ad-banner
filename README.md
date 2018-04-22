@@ -60,7 +60,7 @@ The example of data are shown as follows.
 
 ## 3. Endpoint:
 
-#### (1) Html 
+#### (1) HTML 
 - **GET /** 
   - Main page. For normal user to request the main page (with an ad banner inside). 
 
@@ -91,6 +91,7 @@ The example of data are shown as follows.
 - Separate index.html(user) and admin.html(ad-provider)
 - Refactor: separate server.js, apiHandler.js, dbHandler.js
 - Test code with Jasmine (api) 
+- Separate the endpoints to be two groups: HTML and APIs
 
 **2018.04.20**
 - Add a POST route to a new add

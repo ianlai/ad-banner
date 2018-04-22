@@ -14,8 +14,8 @@ function getAd(adr, callback){
                     //console.log('>> id:       ' + ad.id);
                     var start = getReaderableTime(ad.timeStart);
                     var end = getReaderableTime(ad.timeStart+ad.timeDuration);
-                    //console.log('>> img:    ' + ad.img); 
-                    //console.log('>> period:    ' + start + "--" + end);
+                    console.log('>> img:    ' + ad.img); 
+                    console.log('>> period:    ' + start + "--" + end);
                    
                     //console.log('start:    ' + getReaderableTime(ad.timeStart));
                     //console.log('duration: ' + getReaderableTime(ad.timeDuration));
@@ -38,12 +38,16 @@ function getAd(adr, callback){
                 // console.log("Returned ad: " + ad);
                 // console.log("ad  ID: " + ad.id);
                 // console.log("ad  ip: " + ad.ip);
-                if(adr.ip==ad.ip){
-                    console.log("Authorized IP");
-                    callback(ad);
+                if(!ad){
+                    callback("Not found.");
                 }else{
-                    console.log("Not authorized IP");
-                    callback(null);
+                    if(adr.ip==ad.ip){
+                        console.log("Authorized IP");
+                        callback(ad);
+                    }else{
+                        console.log("Not authorized IP");
+                        callback(null);
+                    }
                 }
         });
     }
