@@ -7,23 +7,27 @@ var adSchema = new mongoose.Schema({
     ip: String, 
     timeStart: Number,
     timeDuration: Number,
-    showCount: Number    //not implemented yet
+    identifier: String    //for debugging
 });
 var Ad = mongoose.model("Ad", adSchema);  
 //============================================================
+/* obj1: time no limit (always shown) */
 var obj1 = {
       img: "/sample1.png",
       url: "www.ad.com/1",
-      ip: "101.0.0.1",
-      timeStart: 1523963781963, 
-      timeDuration: 1000000
+      ip: "1.1.1.1",
+      timeStart: 0, 
+      timeDuration: 99999999999999,
+      identifier: "ad1"  //for debug
     };
+/* obj2: time 0 (always not shown) */
 var obj2 = {
       img: "/sample2.png",
       url: "www.ad.com/2",
-      ip: "102.0.0.1",
+      ip: "2.2.2.2",
       timeStart: 1588863781963, 
-      timeDuration: 800000000
+      timeDuration: 0,
+      identifier: "ad2"  //for debug
     };
 var obj3 = {
       img: "/sample3.png",
@@ -31,27 +35,31 @@ var obj3 = {
       ip: "103.0.0.1",
       timeStart: 1423980600000,
       timeDuration: 180000000000,
+      identifier: "ad3"  //for debug
     };
 var obj4 = {
       img: "/sample4.png",
       url: "www.ad.com/4",
       ip: "104.0.0.1",
       timeStart: 1500965447538, 
-      timeDuration: 10000000
+      timeDuration: 10000000,
+      identifier: "ad4"  //for debug
     };
 var obj5 = {
       img: "/sample5.png",
       url: "www.ad.com/5",
       ip: "105.0.0.1",
       timeStart: 1523265447538, 
-      timeDuration: 8900000000
+      timeDuration: 8900000000,
+      identifier: "ad5"  //for debug
     };
 var obj6 = {
       img: "/sample6.png",
       url: "www.ad.com/6",
       ip: "106.0.0.1",
       timeStart: 1523962447538, 
-      timeDuration: 6700000000
+      timeDuration: 6700000000,
+      identifier: "ad6"  //for debug
     };
 function seedDatabase(callback) {
     Ad.create(obj1, function(err, saved) {

@@ -6,7 +6,7 @@ var URL  = require('url');
 var fs   = require('fs');
 
 var dbHandler     = require("./dbHandler");
-var Ad            = dbHandler.Ad;
+//var Ad            = dbHandler.Ad;
 var seedDatabase  = dbHandler.seedDatabase;
 var clearDatabase = dbHandler.clearDatabase;
 
@@ -17,8 +17,8 @@ var pad        = apiHandler.pad;
 //=============================================
 
 /* Initialization the database (for debugging) */
-clearDatabase();
-seedDatabase();
+//clearDatabase();
+//seedDatabase();
 
 //=============================================
 
@@ -81,7 +81,7 @@ var server = http.createServer(function (req, res) {
         time    : reqTime,
         timezone: undefined
     }
-    adrequest.ip = "104.0.0.1";
+    adrequest.ip = "101.0.0.1";
     console.log("----------------------");
     console.log('adrequest: ', adrequest);
     
@@ -96,12 +96,13 @@ var server = http.createServer(function (req, res) {
         /* Timezone received; filtered the ads and send the ads */
         else{
             adrequest.timezone = myURL.query.tz;
+            console.log('adrequest with tz: ', adrequest);
             getAd(adrequest, function(returnedAds){
                 console.log("Feasible Ad List -> " + returnedAds);
                 
                 /* Send response */
                 res.writeHead(200, {'Content-Type': 'text/json'});
-                res.end(JSON.stringify(returnedAds));
+                res.end(JSON.stringify(returnedAds[0]));
             });
         }
     }
