@@ -81,7 +81,7 @@ var server = http.createServer(function (req, res) {
         time    : reqTime,
         timezone: undefined
     }
-    adrequest.ip = "101.0.0.1";
+    adrequest.ip = "1.1.1.1";
     console.log("----------------------");
     console.log('adrequest: ', adrequest);
     
