@@ -1,24 +1,15 @@
 /* global $ */
 $(document).ready(function(){
-    //alert("index.js loaded.");
     var timezone = new Date().getTimezoneOffset();
-    console.log("[index.js]" + timezone);
     /* get the ad */
     $.getJSON('/api/v1/ads',
     {
         tz: timezone   
     })
     .then(function(res){
-        //console.log(res[0].img);
+        
         /* show the ad */
         $('#img').text(res.img);
         $('#url').text(res.url);
-        
-        // res.forEach(function(e){
-        //     $('#banner').append(e.img);
-        //     $('#banner').append('  --  ');
-        //     $('#banner').append(e.url);
-        //     $('#banner').append('\n');
-        // })
     });
 });

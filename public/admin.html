@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">  
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
@@ -25,21 +26,48 @@
             <h2>Admin</h2>
             <div>
                 This is the admin page for the ad provider to upload the ads. <br>
-                <br>
-                According to the promotional time set by the ad publisher and the timezone you are in, <br>
-                an ad will be choosed, loaded and shown in below. 
             </div>
         </div>
         
         <div id="poster" class="container">
             <h2>Ad Poster</h2>
             <div>
-                Ad publisher can use this block to upload the ad. <br>
-                Or they can just use the api provided to upload the ad. <br>
-                <br>
-                (not implemented yet) 
+                Ad publisher can upload the ad information by <br>
+                (1) this ad poster tool or <br>
+                (2) using the provided post API <br>
+                <br><br>
+                <div class="input-group" style="width:40%; margin: auto auto auto 10px;">
+
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Ad website url (ex. www.example.com)</span>
+                    </div>
+                    <input id="url" class="form-control" type="text" placeholder="ad website url" >
+                    <br>
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Image url (ex: img.png) </span>
+                    </div>
+                    <input id="img" class="form-control" type="text" placeholder="image url" >
+                    
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Management IP (ex: 199.0.0.1)</span>
+                    </div>
+                    <input class="form-control" type="text" id="ip" placeholder="management IP" >
+                    
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Promotion Time Start (ex. 1524401714213) </span>
+                    </div>
+                    <input class="form-control" type="text" id="timeStart" placeholder="promotioal time start" >
+                    
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="inputGroup-sizing-default">Promotion Time Duration  (ex. 1728000000)</span>
+                    </div>
+                    <input class="form-control" type="text" id="timeDuration" placeholder="promotioal time duration" >
+                    
+                    <button id="btnSubmit" class="btn btn-primary btn-sm btn-block" style="margin: 30px auto auto auto">Submit</button>
+                </div>
+                
             </div>
         </div>
-        <script type="text/javascript" src="index.js"></script>
+        <script type="text/javascript" src="admin.js"></script>
     </body>
 </html>

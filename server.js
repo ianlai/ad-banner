@@ -25,6 +25,7 @@ var pad        = apiHandler.pad;
 var mainHtml;
 var mainJs;
 var adminHtml;
+var adminJs;
 
 fs.readFile('./public/index.js', function(err, data) {
     if (err){
@@ -45,6 +46,13 @@ fs.readFile('./public/admin.html', function(err, data) {
         throw err;
     }
     adminHtml = data;
+});
+
+fs.readFile('./public/admin.js', function(err, data) {
+    if (err){
+        throw err;
+    }
+    adminJs = data;
 });
 //=============================================
 
@@ -72,14 +80,14 @@ var server = http.createServer(function (req, res) {
         myURL.pathname = myURL.pathname.replace(/\/$/g, '');  //remove tailing slash 
     }
     var idFormatted; //= myURL.path.replace(/^\/+/g, '');  //remove leading slash 
-    console.log('URL: ', myURL);
+    //console.log('URL: ', myURL);
     const apiUrl = '/api/v1/ads'; 
     if(myURL.path.startsWith(apiUrl)){
         var idIndex = myURL.path.startsWith(apiUrl);
         idFormatted = myURL.path.substring(apiUrl.length+1);
     }
-    console.log('URL-id: ', idFormatted);
-    console.log('URL-tz: ', myURL.query.tz);
+    //console.log('URL-id: ', idFormatted);
+    //console.log('URL-tz: ', myURL.query.tz);
     
     var isMongoId = new RegExp("^[0-9a-fA-F]{24}$");
     idFormatted = isMongoId.test(idFormatted) ? idFormatted : undefined;
@@ -97,14 +105,18 @@ var server = http.createServer(function (req, res) {
     console.log("----------------------");
     console.log('adrequest: ', adrequest);
     
-    /* Send index.html (if no timezone) or send the feasible ad list (if there is timezone) */
+    /* ============================== */
+    /* ======== Static Files ======== */
+    /* ============================== */
+    
+    /* Send index.html */
     if(myURL.path==='/' && adrequest.method==='GET'){
         console.log('GET /index.html');
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.write(mainHtml);
         res.end();
     }
-    /* Send index.js to let client send the timezone to request the ad */
+    /* Send index.js to let client send back the timezone to request the ad with Ajax*/
     else if(myURL.path==='/index.js' && adrequest.method==='GET'){
         console.log('GET /index.js');
         res.writeHead(200, {'Content-Type': 'application/javascript'});
@@ -118,13 +130,22 @@ var server = http.createServer(function (req, res) {
         res.write(adminHtml);
         res.end();
     }
+    /* Send admin.js */
+    else if(myURL.path==='/admin.js' && adrequest.method==='GET'){
+        console.log('GET /admin.js');
+        res.writeHead(200, {'Content-Type': 'application/javascript'});
+        res.write(adminJs);
+        res.end();
+    }
     /* Omit the request of favicon */
     else if(adrequest.url==='/favicon.ico' && adrequest.method==='GET'){  
         res.writeHead(204);
         return;
     }
     
-    //--------------------------------------------------------------------------
+    /* ===================== */
+    /* ======== API ======== */
+    /* ===================== */
     /* Request all the ads in the database */
     else if(myURL.pathname==='/api/v1/ads' && adrequest.method==='GET' && myURL.query.tz===undefined){
         getAd(0, function(returnedAds){
@@ -164,6 +185,9 @@ var server = http.createServer(function (req, res) {
     /* Add an ad */
     else if(myURL.path==='/api/v1/ads' && adrequest.method==='POST'){
         parsePostBody(req, (chunks) => {
+            console.log("=================");
+            console.log(chunks.toString());
+            console.log("=================");
             var parsed = JSON.parse(chunks.toString());  
             var newAd = {
                 img: parsed.img,
