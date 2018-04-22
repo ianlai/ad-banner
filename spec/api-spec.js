@@ -39,7 +39,6 @@ describe("# Get Ad List", function(){
             timezone: '-540'
         }
         getAd(adrequest, function(returnedAds){
-            //console.log("Returned Ads: " + returnedAds + "length: " + returnedAds.length) ;
             expect(returnedAds.length).toBe(1);
             done();
         });

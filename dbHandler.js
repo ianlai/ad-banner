@@ -11,6 +11,7 @@ var adSchema = new mongoose.Schema({
 });
 var Ad = mongoose.model("Ad", adSchema);  
 //============================================================
+
 /* obj1: time no limit (always shown) */
 var obj1 = {
       img: "/sample1.png",
@@ -108,56 +109,6 @@ function seedDatabase(callback) {
         }
     });
 }
-
-// function seedDatabase(callback){
-//     Ad.create(obj1, function(err, saved){
-//       if(err){
-//           console.log("DB error");
-//       }else{
-//           console.log("DB is seeded - 1.");
-//       }
-//     });
-    
-//     Ad.create(obj2, function(err, saved){
-//       if(err){
-//           console.log("DB error");
-//       }else{
-//           console.log("DB is seeded - 2.");
-//       }
-//     });
-    
-//     Ad.create(obj3, function(err, saved){
-//       if(err){
-//           console.log("DB error");
-//       }else{
-//           console.log("DB is seeded - 3.");
-//       }
-//     });
-    
-//     Ad.create(obj4, function(err, saved){
-//       if(err){
-//           console.log("DB error");
-//       }else{
-//           console.log("DB is seeded - 4.");
-//       }
-//     });
-
-//     Ad.create(obj5, function(err, saved){
-//       if(err){
-//           console.log("DB error");
-//       }else{
-//           console.log("DB is seeded - 5.");
-//       }
-//     });
-    
-//     Ad.create(obj6, function(err, saved){
-//       if(err){
-//           console.log("DB error");
-//       }else{
-//           console.log("DB is seeded - 6.");
-//       }
-//     });
-// }
 
 function clearDatabase(callback){
     Ad.remove({}, function(err){

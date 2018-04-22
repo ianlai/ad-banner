@@ -72,20 +72,21 @@ var server = http.createServer(function (req, res) {
     var ipFormatted = req.connection.remoteAddress.replace(/^.*:/, ''); //remove all colons
     
     /* Handle request : URL */
-    const myURL = URL.parse(req.url, true);
+    const apiUrl = '/api/v1/ads'; 
+    var myURL = URL.parse(req.url, true);
     if(myURL.path=='/'){
         /* Main page: do nothing */
     }else{
+        /* Other endpoints: remove the tailing slash if there is */
         myURL.path = myURL.path.replace(/\/$/g, '');  //remove tailing slash 
         myURL.pathname = myURL.pathname.replace(/\/$/g, '');  //remove tailing slash 
     }
-    var idFormatted; //= myURL.path.replace(/^\/+/g, '');  //remove leading slash 
-    //console.log('URL: ', myURL);
-    const apiUrl = '/api/v1/ads'; 
+    var idFormatted;
     if(myURL.path.startsWith(apiUrl)){
         var idIndex = myURL.path.startsWith(apiUrl);
         idFormatted = myURL.path.substring(apiUrl.length+1);
     }
+    //console.log('URL: ', myURL);
     //console.log('URL-id: ', idFormatted);
     //console.log('URL-tz: ', myURL.query.tz);
     
@@ -101,36 +102,35 @@ var server = http.createServer(function (req, res) {
         time    : reqTime,
         timezone: undefined
     }
-    adrequest.ip = "3.3.3.3";
-    console.log("----------------------");
-    console.log('adrequest: ', adrequest);
+    adrequest.ip = "10.0.0.1";
+    //console.log('adrequest: ', adrequest);
     
     /* ============================== */
     /* ======== Static Files ======== */
     /* ============================== */
     
-    /* Send index.html */
+    /* Send index.html: main page with ad banner */
     if(myURL.path==='/' && adrequest.method==='GET'){
         console.log('GET /index.html');
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.write(mainHtml);
         res.end();
     }
-    /* Send index.js to let client send back the timezone to request the ad with Ajax*/
+    /* Send index.js: let client send back the timezone with Ajax to request the ad */
     else if(myURL.path==='/index.js' && adrequest.method==='GET'){
         console.log('GET /index.js');
         res.writeHead(200, {'Content-Type': 'application/javascript'});
         res.write(mainJs);
         res.end();
     }
-    /* Send admin.html */
+    /* Send admin.html: ad-publisher can post an add with this page  */
     else if(myURL.path==='/admin' && adrequest.method==='GET'){
         console.log('GET /admin.html');
         res.writeHead(200, {'Content-Type': 'text/html'});
         res.write(adminHtml);
         res.end();
     }
-    /* Send admin.js */
+    /* Send admin.js: send Ajax post request to add an add   */
     else if(myURL.path==='/admin.js' && adrequest.method==='GET'){
         console.log('GET /admin.js');
         res.writeHead(200, {'Content-Type': 'application/javascript'});
@@ -140,14 +140,17 @@ var server = http.createServer(function (req, res) {
     /* Ignore the request of favicon */
     else if(adrequest.url==='/favicon.ico' && adrequest.method==='GET'){  
         res.writeHead(204);
+        res.end();
         return;
     }
     
     /* ===================== */
     /* ======== API ======== */
     /* ===================== */
+    
     /* Request all the ads in the database */
     else if(myURL.pathname==='/api/v1/ads' && adrequest.method==='GET' && myURL.query.tz===undefined){
+        console.log('GET /api/v1/ads');
         getAd(0, function(returnedAds){
             console.log("All Ad List -> " + returnedAds);
             res.writeHead(200, {'Content-Type': 'text/json'});
@@ -156,25 +159,26 @@ var server = http.createServer(function (req, res) {
     }
     /* Request one ad randomly in the database which matches the timezone */
     else if(myURL.pathname==='/api/v1/ads' && adrequest.method==='GET' && myURL.query.tz){
-                    
+        console.log('GET /api/v1/ads?tz='+myURL.query.tz);
+        
         /* Timezone received; filtered the ads and send the ads */
         adrequest.timezone = myURL.query.tz;
-        console.log('adrequest with tz: ', adrequest);
+        //console.log('adrequest with tz: ', adrequest);
+        
         getAd(adrequest, function(returnedAds){
-            console.log("Feasible Ad List -> " + returnedAds);
+            //console.log("Feasible Ad List -> " + returnedAds);
             
             /* Send response */
             res.writeHead(200, {'Content-Type': 'text/json'});
             res.end(JSON.stringify(returnedAds[0]));
         });
-        
     }
     /* Request a specific ad with its id */
     else if(adrequest.id!==undefined && adrequest.method==='GET'){ 
-        console.log('GET /:id');
+        console.log('GET /api/v1/ads/:id');
         
         getAd(adrequest, function(ad){
-            console.log("Request Specific ad -> " + ad);
+            //console.log("Request Specific ad -> " + ad);
             if(ad!==undefined){
                 /* Send response */
                 res.writeHead(200, {'Content-Type': 'text/json'});
@@ -184,19 +188,10 @@ var server = http.createServer(function (req, res) {
     }
     /* Add an ad */
     else if(myURL.path==='/api/v1/ads' && adrequest.method==='POST'){
+        console.log('POST /api/v1/ads');
         parsePostBody(req, (chunks) => {
-            console.log("=================");
-            console.log(chunks.toString());
-            console.log("=================");
             var parsed = JSON.parse(chunks.toString());  
-            var newAd = {
-                img: parsed.img,
-                url: parsed.url,
-                ip:  parsed.ip,
-                timeStart:    parsed.timeStart,
-                timeDuration: parsed.timeDuration
-            }
-           
+            
             /* Add to database */
             Ad.create({
                 img: parsed.img,
@@ -208,8 +203,8 @@ var server = http.createServer(function (req, res) {
                 if(err){
                     console.log("DB error: " + err);
                 }else{
-                    console.log(`Ad (${saved._id}) saved.`);
-                    res.end(`${saved._id} has been added.`); 
+                    console.log(`New ad has been saved: ${saved._id}`);
+                    res.end(`New ad has been saved: ${saved._id}`); 
                 }
             });
         });
@@ -222,7 +217,6 @@ var server = http.createServer(function (req, res) {
 }).listen(process.env.PORT);
 
 var parsePostBody = function (req, done) {
-    var length = req.headers['content-length'] - 0;
     var arr = [];
     var chunks;
     req.on('data', buff => {

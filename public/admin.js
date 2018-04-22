@@ -1,8 +1,4 @@
 /* global $ */
-$(document).ready(function(){
-    //alert("admin.js loaded.");
-});
-
 $('#btnSubmit').click(function(){
     var newAd = { 
             img: $('#img').val(), 
@@ -11,16 +7,12 @@ $('#btnSubmit').click(function(){
             timeStart   : $('#timeStart').val(),
             timeDuration: $('#timeDuration').val()
     };
-    //console.log("click");
-    //console.log("img: " + $('#myimg').val());
-    //console.log("url: " + $('#myurl').text());
-    //console.log(newAd);
-    
+
     /* post an ad */
     $.ajax({
         type: "POST",
         url:  "/api/v1/ads",
-        data: JSON.stringify(newAd),  //handle the jsonify on our own instead of jquery
+        data: JSON.stringify(newAd),  //handle the jsonify on our own instead of jQuery
         processData: false
         //contentType: "application/json"
     })
