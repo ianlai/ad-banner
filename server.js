@@ -137,7 +137,7 @@ var server = http.createServer(function (req, res) {
         res.write(adminJs);
         res.end();
     }
-    /* Omit the request of favicon */
+    /* Ignore the request of favicon */
     else if(adrequest.url==='/favicon.ico' && adrequest.method==='GET'){  
         res.writeHead(204);
         return;
